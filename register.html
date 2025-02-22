@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        video#myVideo {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            object-fit: cover;
+        }
+        .container {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0); /* 半透明白色背景 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input[type=text], input[type=password], input[type=email] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            background-color: rgba(76, 175, 80, 0.9);
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .radio-group {
+            margin-bottom: 16px;
+        }
+        .radio-group label {
+            margin-right: 10px;
+        }
+        .registration-field {
+            display: none;
+        }
+        .registration-field.active {
+            display: block;
+        }
+    </style>
+    <script>
+        function toggleRegistrationFields(registrationType) {
+            const emailField = document.getElementById('emailField');
+            const idCardField = document.getElementById('idCardField');
+            emailField.classList.remove('active');
+            idCardField.classList.remove('active');
+            if (registrationType === 'email') {
+                emailField.classList.add('active');
+            } else if (registrationType === 'idCard') {
+                idCardField.classList.add('active');
+            }
+        }
+        window.onload = function() {
+            toggleRegistrationFields('email');
+        };
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            alert("注册成功！");
+            setTimeout(function() {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+    </script>
+</head>
+<body>
+<video id="myVideo" autoplay muted loop poster="https://qq-web.cdn-go.cn/monorepo/3ccce5a6/zc.qq.com_v3/assets/img/img-bg@2x.png">
+    <source src="https://qq-web.cdn-go.cn/monorepo/3ccce5a6/zc.qq.com_v3/assets/img/bg-video.webm" type="video/webm">
+    <source src="https://qq-web.cdn-go.cn/monorepo/3ccce5a6/zc.qq.com_v3/assets/img/bg-video.mp4" type="video/mp4">
+</video>
+<div class="container">
+    <h2>注册</h2>
+    <form id="registrationForm" onsubmit="handleFormSubmit(event)">
+        <div class="radio-group">
+            <label><input type="radio" name="registrationType" value="email" onclick="toggleRegistrationFields('email')" checked> 使用邮箱注册</label>
+            <label><input type="radio" name="registrationType" value="idCard" onclick="toggleRegistrationFields('idCard')"> 使用身份证注册</label>
+        </div>
+        <div id="emailField" class="registration-field active">
+            <div>
+                <label for="email"><b>邮箱</b></label>
+                <input type="email" id="email" placeholder="输入邮箱地址" name="email" required>
+            </div>
+        </div>
+        <div id="idCardField" class="registration-field">
+            <div>
+                <label for="idCard"><b>身份证号码</b></label>
+                <input type="text" id="idCard" placeholder="输入身份证号码" name="idCard" required>
+            </div>
+        </div>
+
+        <div>
+            <label for="psw"><b>密码</b></label>
+            <input type="password" id="psw" placeholder="输入密码" name="psw" required>
+        </div>
+        <div>
+            <label for="psw-repeat"><b>确认密码</b></label>
+            <input type="password" id="psw-repeat" placeholder="再次输入密码" name="psw-repeat" required>
+        </div>
+        <button type="submit">注册</button>
+    </form>
+</div>
+
+</body>
+</html>
