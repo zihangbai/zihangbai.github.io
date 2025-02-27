@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html style="height:100%;" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河㙟地图</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 地图容器 */
+        .map-container {
+            position: relative;
+            overflow: hidden;/*防止内容溢出*/
+        }
+
+        /* 背景地图 */
+        .map-image {
+            width: 100%;
+            height: 100%;
+            obeject-fit:contain;
+            obeject-position:center center;
+        }
+
+        /* 可点击的文字标签 */
+        .location-label {
+            position: absolute;
+            cursor: pointer;
+            color: #333;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+
+        .location-label:hover {
+            color: #007bff;
+            transform: scale(1.1);
+        }
+
+        /* 自定义透明模态框 */
+        .modal-content {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column" style="height:100vh;margin:0;">
+    <div class="map-container" style="flex:1;min-height:0;">
+        <!-- 替换为你的地图图片路径 -->
+        <img src="picture/map.jpg" class="map-image" alt="地图背景">
+
+        <!-- 地点标签 - 需要手动设置坐标 -->
+        <div class="location-label" style="left: 45.2%; top: 64.5%;"data-location="1">
+            云帘村
+        </div>
+        <div class="location-label" style="left: 48.5%; top: 53%;" data-location="2">
+            大塘村
+        </div>
+        <div class="location-label" style="left: 53.7%; top: 50%;" data-location="3">
+            新竹村
+        </div>
+        <div class="location-label" style="left: 56.4%; top: 48.2%;" data-location="4">
+            社塘村
+        </div>
+        <div class="location-label" style="left: 60.5%; top: 48.8%;" data-location="5">
+            阳三村
+        </div>
+        <div class="location-label" style="left: 58.1%; top: 62%;" data-location="6">
+            大竹村
+        </div>
+        <div class="location-label" style="left: 62.1%; top: 37.3%;" data-location="7">
+            罗阳村
+        </div>
+        <div class="location-label" style="left: 66%; top: 26.8%;" data-location="8">
+            司马村
+        </div>
+        <div class="location-label" style="left: 65.5%; top: 50.8%;" data-location="9">
+            凌霄村
+        </div>
+        <div class="location-label" style="left: 71%; top: 32.6%;" data-location="10">
+            石忽村
+        </div>
+        <div class="location-label" style="left: 68.7%; top: 19.9%;" data-location="11">
+            新阳村
+        </div>
+        <div class="location-label" style="left: 72%; top: 50.6%;" data-location="12">
+            中和村
+        </div>
+        <div class="location-label" style="left: 76.8%; top: 51%;" data-location="13">
+            中联村
+        </div>
+        <div class="location-label" style="left: 72.3%; top: 64.2%;" data-location="14">
+            河㙟村
+        </div>
+        <!-- 重复添加其他15个地点... -->
+    </div>
+
+    <style>
+        /* 设置模态框背景为半透明 */
+        #locationModal .modal-content {
+            background-color: rgba(255, 255, 255, 0.8);
+            /* 白色背景，透明度为 0.8 */
+            border-radius: 15px;
+            /* 圆角 */
+        }
+
+        /* 设置模态框标题和内容的文字颜色 */
+        #locationModal .modal-header,
+        #locationModal .modal-body {
+            color: #333;
+            /* 文字颜色 */
+        }
+    </style>
+
+<!-- 模态框模板 -->
+<div class="modal fade" id="locationModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">地点名称</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>【区位交通】</h6>
+                <p id="location-traffic">加载中...</p>
+                <h6>【区划人口】</h6>
+                <p id="location-population">加载中...</p>
+                <h6>【党组织情况】</h6>
+                <p id="location-party">加载中...</p>
+                <p>实时数据：<span id="location-data">加载中...</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS 及其依赖 -->
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 初始化交互功能
+    $(document).ready(function() {
+        // 点击地点标签时触发
+        $('.location-label').click(function() {
+            const locationId = $(this).data('location');
+            const modal = $('#locationModal');
+
+            // 获取并更新详细信息
+            fetchLocationData(locationId).then(data => {
+                // 更新模态框内容
+                modal.find('.modal-title').text($(this).text()); // 显示村庄名称
+            // 分割描述信息
+            const parts = {
+                traffic: '',
+                population: '',
+                party: ''
+            };
+            if (data.description) {
+                const lines = data.description.split('\n');
+                let currentPart = '';
+                lines.forEach(line => {
+                    if (line.startsWith('【区位交通】')) {
+                        currentPart = 'traffic';
+                    } else if (line.startsWith('【区划人口】')) {
+                        currentPart = 'population';
+                    } else if (line.startsWith('【党组织情况】')) {
+                        currentPart = 'party';
+                    } else if (currentPart) {
+                        parts[currentPart] += line + '\n';
+                    }
+                });
+            }
+
+            modal.find('#location-traffic').text(parts.traffic.trim()); // 显示区位交通信息
+            modal.find('#location-population').text(parts.population.trim()); // 显示区划人口信息
+            modal.find('#location-party').text(parts.party.trim()); // 显示党组织情况信息
+            modal.find('#location-data').text('2025-02-27 数据：' + data.data); // 显示实时数据
+//显示模态框
+            new bootstrap.Modal(modal.get(0)).show();
+        }).catch(error => {
+                console.error('获取数据时出错：', error);
+            });
+        });
+    });
+
+    // 示例数据获取函数
+    async function fetchLocationData(id) {
+        try {
+            // 实际使用时替换为你的API接口
+            const response = await fetch(`http://localhost:128/api/locations/${id}`);
+            if (!response.ok) {
+                throw new Error('网络请求失败');
+            }
+            return response.json();
+        } catch (error) {
+            console.error('获取数据时出错：', error);
+            return { description: '无法获取描述信息', data: '暂无数据' };
+        }
+    }
+</script>
+</body>
+</html>
